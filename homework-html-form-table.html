@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Форма</title>
+	</head>
+
+	<style>
+        h3 {
+            color: steelblue;
+        }
+
+        .students-tab {
+            border: 1px solid steelblue;
+            width: 650px;
+            border-collapse: collapse;
+            margin-bottom: 300px;
+        }
+
+        .students-tab tr td {
+            border: 1px solid steelblue;
+        }
+
+        .students-tab-col1 {
+            width: 300px;
+        }
+
+        .students-tab-col2 {
+            width: 120px;
+        }
+
+        .students-tab-col3 {
+            width: 150px;
+        }
+
+        .students-tab-col4 {
+            width: 80px;
+        }
+
+    </style>
+		
+	<body>
+		<form action = "" id = "form" onsubmit="return false">
+			<p>
+				<label for = "nameTextBox">Имя студента</label>
+				<input id = "nameTextBox" name = "name" type = "text">
+			</p>
+
+			<p>
+				<label for = "birthDatePicker">Дата рождения</label>
+				<input id = "birthDatePicker" name = "birthDate" type = "date" value = "2005-06-15">
+			</p>
+
+			<p>
+				<label>
+					Пол
+					<select id = "studentGender" name = "gender">
+						<option value = "1" selected>Мужской</option>
+						<option value = "2">Женский</option>
+					</select>
+				</label>    
+			</p>
+			<input type = "submit" value = "Добавить" onclick="updateTable()">
+		</form>
+	
+		<h3>Таблица студентов</h3>
+		<table class="students-tab" id="studentsTab">
+			<thead>
+				<tr>
+					<td class="students-tab-col1">Имя студента</td>
+					<td class="students-tab-col2">Пол</td>
+					<td class="students-tab-col3">Дата рождения</td>
+					<td class="students-tab-col4">Возраст</td>
+				</tr>
+				<tr> 
+					<td colspan = "4">&nbsp;</td> 
+				</tr>  
+				<tr> 
+					<td colspan = "3">Средний возраст студентов</td> 
+					<td colspan = "1" id = "averageAge">0</td> 
+				</tr>
+			</thead>
+		</table>
+
+		<script src="https://yastatic.net/jquery/3.3.1/jquery.min.js"></script>
+		<script type="text/javascript">
+					function buildStudent(){
+						// получить значения из формы, создать студента
+						const form = document.getElementById("form");
+						const student = {};
+						student.name = document.getElementById("nameTextBox");						
+						student.birthDate = document.getElementById("birthDatePicker");
+						
+						//получить выбранное значение пола
+						genderOptions = document.getElementById("studentGender");
+						student.gender = genderOptions.options[genderOptions.selectedIndex].text; 	
+
+						//посчитать возраст						
+						student.age = Math.floor((new Date() - new Date(document.getElementById("birthDatePicker").value)) / 1000 / 60 / 60 / 24 / 365);	
+
+						return student;						
+					}
+
+					function addStudentInTable(student){
+						//добавить нового студента в таблицу
+						const studentsTab = document.getElementById("studentsTab");		
+
+						let newRow = studentsTab.insertRow(studentsTab.rows.length - 1);
+							
+
+						let cellName = newRow.insertCell(0);			
+						let cellGender = newRow.insertCell(1);		
+						let cellDate = newRow.insertCell(2);
+						let cellAge = newRow.insertCell(3);
+						
+						
+						let name = student.name.value;
+						let gender = student.gender;
+						let birthDate = student.birthDate.value;
+						let age = student.age;
+							
+						cellName.appendChild(document.createTextNode(name));					
+						cellGender.appendChild(document.createTextNode(gender));					
+						cellDate.appendChild(document.createTextNode(birthDate));					
+						cellAge.appendChild(document.createTextNode(age));
+
+						let index = studentsTab.rows.length - 2;						
+						cellAge.id = "cell-age-id" + index;
+						document.getElementById("cell-age-id" + index).classList.add("cell-age");
+					}
+
+					function getAges(table){
+							let ages = [];
+							const studentRows = table.getElementsByClassName("students-row"); 
+							const ageCells = table.getElementsByClassName("cell-age"); 
+							for( let i = 0; i < ageCells.length; i++){
+								ages.push(ageCells[i].innerHTML);
+							}	
+							return ages;
+						}
+
+					function countAveregeAge(ages) {
+						if(ages.length === 0){
+							console.log("ages.length: " + ages.length);
+							return 0;	
+						}											
+						let sum = 0;						
+						for(let i = 0; i < ages.length; i++) {
+							sum += Number.parseInt(ages[i]);
+							console.log("sum" + sum)
+						} 
+						return Math.round(sum / ages.length);
+					}	
+
+				function fillAveregeAge(student){
+					//расчет и добавление среднего возраста
+					let averageAge = document.getElementById("averageAge").innerHTML;					
+
+					if (Number.parseInt(averageAge) != 0){
+						const ages = getAges(studentsTab);		
+						averageAge = countAveregeAge(ages);
+						console.log("averageAge: " + averageAge);
+					}else {	
+						averageAge = student.age;
+						console.log("averageAge: " + averageAge);
+					}	
+					document.getElementById("averageAge").innerHTML = averageAge;
+				}
+
+				function updateTable(){
+					const student = buildStudent();
+					addStudentInTable(student);			
+					fillAveregeAge(student);					
+				}
+		</script>
+	</body>
+</html>
